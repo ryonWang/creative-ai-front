@@ -1,0 +1,308 @@
+{
+	"easycom": {
+		"autoscan": true,
+		// 注意一定要放在custom里，否则无效，https://ask.dcloud.net.cn/question/131175
+		"custom": {  
+			"^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
+		}
+	},
+	"condition": { //模式配置，仅开发期间生效
+		"current": 1, //当前激活的模式(list 的索引项)
+		"list": [{
+			"name": "test", //模式名称
+			"path": "tabber/index/index"
+		}]
+	},
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		
+		{
+			"path": "tabber/index/index",
+			"style": {
+				"transparentTitle": "always" //状态栏透明
+			}
+		},
+		{
+			"path": "tabber/live/index",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+		    "path" : "tabber/live/type",
+		    "style" :  {
+				"navigationBarTitleText": "直播方式"
+			}
+		},
+		{
+			"path": "tabber/me/index",
+			"style": {
+				"transparentTitle": "always" ,//状态栏透明
+				"navigationBarTitleText": "",
+				"navigationBarTextStyle": "black"
+			}
+		}
+	],
+	"subPackages": [
+		{
+			"root": "pagesub",
+			"pages": [
+				{
+				    "path": "/live/record",
+				    "style": {
+				    	"navigationBarTitleText": "直播记录",
+						"enablePullDownRefresh": true
+				    }
+				},
+				{
+					"path": "/live/detail",
+					"style": {
+						"navigationBarTitleText": "直播记录详情"
+					}
+				},
+				{
+                    "path" : "live/create",
+                    "style" :  {
+						"transparentTitle": "auto",
+						"navigationBarBackgroundColor": "#519af8",
+						// "navigationStyle": "custom",
+						"navigationBarTitleText": "创建新直播",
+						"navigationBarTextStyle": "white"
+					}
+                },
+				{
+				    "path" : "live/create2",
+				    "style" :  {
+						"transparentTitle": "auto",
+						"navigationBarBackgroundColor": "#519af8",
+						"navigationBarTitleText": "创建贴图直播",
+						"navigationBarTextStyle": "white"
+					}
+				},
+				{
+					"path": "/live/sticker",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "/live/uploadimg",
+					"style": {
+						"navigationBarTitleText": "添加贴图"
+					}
+				},
+				{
+					"path": "/live/uploadvideo",
+					"style": {
+						"navigationBarTitleText": "添加直播视频"
+					}
+				},
+				{
+					"path": "other/policy",
+					"style": {
+						"navigationBarTitleText": "用户隐私服务协议"
+					}
+				},
+				{
+				    "path" : "other/about",
+				    "style" :  {
+						"navigationBarTitleText": "关于我们"
+					}
+				},
+				{
+				    "path" : "other/feedback",
+				    "style" :  {
+						"navigationBarTitleText": "反馈"
+					}
+				},
+				{
+				    "path" : "reply/list",
+				    "style" :  {
+						"navigationBarTitleText": "智能回复"
+					}
+				},
+				{
+				    "path" : "reply/crt",
+				    "style" :  {
+						"navigationBarTitleText": "创建新项目"
+					}
+				},
+				{
+				    "path" : "reply/add",
+				    "style" :  {
+						"navigationBarTitleText": "添加回复"
+					}
+				},
+				{
+				    "path" : "reply/detail",
+				    "style" :  {
+						"navigationBarTitleText": "回复列表"
+					}
+				},
+				{
+					"path": "login/index",
+					"style": {
+						"navigationBarTitleText": "",
+						"transparentTitle": "auto" //状态栏透明
+					}
+				},
+				{
+					"path": "voices/index",
+					"style": {
+						"navigationBarTitleText": "AI语音库",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "voices/add",
+					"style": {
+						"navigationBarTitleText": "添加新项目"
+					}
+				},
+				{
+					"path": "voices/voiceStore",
+					"style": {
+						"navigationBarTitleText": "语音库"
+					}
+				},
+				{
+					"path": "voices/transcribe",
+					"style": {
+						"navigationBarTitleText": "录制"
+					}
+				},
+				{
+					"path": "/voices/upload",
+					"style": {
+						"navigationBarTitleText": "上传文件"
+					}
+				},
+				{
+					"path": "/voices/taskStore",
+					"style": {
+						"navigationBarTitleText": "话术库"
+					}
+				},
+				{
+					"path" : "/voices/ai-dub",
+					"style" :  {
+						"navigationBarTitleText": "AI配音"
+					}
+				},
+				{
+					"path" : "/voices/select",
+					"style" :  {
+						"navigationBarTitleText": "声音选择"
+					}
+				},
+				{
+					"path" : "/voices/menu",
+					"style" :  {
+						"navigationBarTitleText": "语音库"
+					}
+				},
+				{
+					"path": "/ai/index",
+					"style": {
+						"navigationBarTitleText": "AI创作"
+					}
+				},
+				{
+					"path": "/common/voice",
+					"style": {
+						"navigationBarTitleText": "公共语音库"
+					}
+				},
+				{
+					"path": "/store/tasks",
+					"style": {
+						"transparentTitle": "always"//状态栏透明
+					}
+				},
+				{
+					"path": "goods/index",
+					"style": {
+						"navigationBarTitleText": "商品库",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "goods/add",
+					"style": {
+						"navigationBarTitleText": "添加新项目"
+					}
+				},
+				{
+					"path": "goods/list",
+					"style": {
+						"navigationBarTitleText": "商品库"
+					}
+				},
+				{
+					"path": "goods/create",
+					"style": {
+						"navigationBarTitleText": "添加新商品"
+					}
+				},
+				{
+					"path": "/fit/guide",
+					"style": {
+						"navigationBarTitleText": "拍摄说明"
+					}
+				},
+				{
+					"path": "/fit/index",
+					"style": {
+						"navigationBarTitleText": "选择模特"
+					}
+				},
+				{
+					"path": "/fit/detail",
+					"style": {
+						"navigationBarTitleText": "模特详情"
+					}
+				},
+				{
+					"path": "/fit/clothes",
+					"style": {
+						"navigationBarTitleText": "选择服装"
+					}
+				},
+				{
+					"path": "/fit/result",
+					"style": {
+						"navigationBarTitleText": "合成结果"
+					}
+				}
+            ]
+		}
+	],
+	"tabBar": {
+		"color": "#323333",
+		"selectedColor": "#323333",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+			"pagePath": "tabber/index/index",
+			"iconPath": "static/tabber/index.png",
+			"selectedIconPath": "static/tabber/index_s.png",
+			"text": "首页"
+		}, {
+			"pagePath": "tabber/live/type",
+			"iconPath": "static/tabber/live.png",
+			"selectedIconPath": "static/tabber/live_s.png",
+			"text": "直播"
+		},{
+			"pagePath": "tabber/me/index",
+			"iconPath": "static/tabber/home.png",
+			"selectedIconPath": "static/tabber/home_s.png",
+			"text": "我的"
+		}]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#f8f8f8"
+	}
+}

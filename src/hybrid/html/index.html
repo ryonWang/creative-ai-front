@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>上传文件</title>
+	<link rel="stylesheet" href="./css/index.css">
+	<script type="text/javascript" src="./js/uni.webview.1.5.4.js"></script>
+</head>
+<body>
+	<div class="container">
+		<div class="title">上传音频</div>
+		<div class="uploadBox">
+			<div class="upStyle flex-rcc" @click="upLoad">
+				<img src="./img/audio.png" class="icon"></img>
+				上传音频
+				<input type="file" name="file" class="upInput" id="myFileInput">
+			</div>
+		</div>
+		<div class="name flex-rcc">
+			<input type="text" name="name" placeholder="请输入该音频名称" class="nameInput" id="nameInput">
+		</div>
+		<div class="tip">
+			<div>注意事项:</div>
+			<div class="tips_text">1.请上传音频格式的文件.(如: .mp3、.aac、.wav)</div>
+			<div class="tips_text">2.上传文件大小需大于1kb且小于30M,否则可能导致上传失败!</div>
+		</div>
+		<div class="btnBox">
+			<div class="btn flex-rcc" id="add">确定添加</div>
+		</div>
+		
+	</div>
+	<div id="uploadBox1">
+		正在努力上传中,请稍后...
+	</div>
+	<script src="js/index.js"></script>
+</body>
+</html>

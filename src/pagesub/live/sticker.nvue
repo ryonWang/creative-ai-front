@@ -1,0 +1,573 @@
+<template>
+<view class="liveScreen">
+	<live-pusher 
+		id='livePusher' 
+		ref="livePusher" 
+		class="livePusher" 
+		url=""
+	    mode="FHD" 
+		:muted="true" 
+		:enable-camera="true" 
+		:enable-mic="false"
+		:auto-focus="false" 
+		:beauty="1" 
+		:whiteness="1"
+		:min-bitrate="1000"
+		:style="{'height': `${config.winHeight}px`}"
+		device-position="back"
+		whiteness="2"
+	    aspect="9:16" 
+		@statechange="statechange"
+		@error = "error"
+	></live-pusher>
+	<template v-if="live.liveInfo">
+		<!-- 语音播放列表 -->
+		<template v-for="(item,i) in live.liveInfo.voice_media">
+			<video
+				v-if="i<limit"
+				:id="`vDom${i}`"
+				:src="item.tempFilePath||item.full_path" 
+				:key="i"
+				:autoplay="live.current===i"
+				:muted="live.isplay"
+				@ended="partEnd" 
+				@error="interrupt"
+				class="none"
+			></video>
+		</template>
+	</template>
+	<!-- 直播间贴图区 -->
+	<image class="top" :src="top_img" mode="aspectFit" v-if="top_img"></image>
+	<image class="left" :src="left_img" mode="widthFix" v-if="left_img"></image>
+	<image class="right" :src="right_img" mode="widthFix" v-if="right_img"></image>
+	<image class="bottom" :src="bottom_img" mode="aspectFit" v-if="bottom_img"></image>
+	<video 
+		:class="['videoSticker']"
+		:style="{'height': `${screen_height}rpx`}"
+		v-if="videoSticker && screen_height" 
+		:src="videoSticker" 
+		:muted="true" 
+		:autoplay="true" 
+		:loop="true" 
+		:controls="false"
+		:show-progress="false" 
+		:show-loading="false"
+		:enable-progress-gesture="false"
+		@ended="vsEnd"
+		object-fit="cover"
+	></video>
+	<!-- 商品图 -->
+	<!-- <u-transition :show="goods&&showGoodsCard" mode="fade-up"> -->
+		<view :class="['fixedBox',`location${goods.location}`]" v-if="goods&&showGoodsCard">
+			<view class="goods">
+				<image class="pic" :src="goods.img" mode="aspectFill"></image>
+				<view class="status"><text class="st">·&nbsp;讲解中</text></view>
+				<view class="con">
+					<text class="name" style="text-overflow: ellipsis;lines:1;">{{goods.info.title}}</text>
+					<view class="row other" v-if="goods.type==1||goods.type==3">
+						<view class="price"><text class="unit">￥</text><text class="num" style="text-overflow: ellipsis;lines:1;">{{goods.info.price}}</text></view>
+						<view class="row" style="align-items: flex-end;">
+							<!-- 小黄车 商品购买 -->
+							<image class="typeImg" src="/static/images/live/type1.png" mode="aspectFit" v-if="goods.type==1"></image>
+							<!-- 小房子 优惠卷/团购卷 -->
+							<image class="typeImg" src="/static/images/live/type3.png" mode="aspectFit" v-else></image>
+							<image class="arrow" src="/static/images/live/arrow.png" mode="aspectFit"></image>
+						</view>
+					</view>
+					<!-- 小风车 预约表单 -->
+					<view class="row prebook" v-else-if="goods.type==2">
+						<text class="rbt">点击下方</text>
+						<image class="typeImg" src="/static/images/live/type2.png" mode="aspectFit"></image>
+						<text class="rbt">预约</text>
+					</view>
+				</view>
+			</view>
+			<view class="triangle"></view>
+		</view>
+	<!-- </u-transition> -->
+</view>
+</template>
+
+<script>
+import { onLoad, onUnload } from '@dcloudio/uni-app'
+import { useConfigStore, useLiveStore } from '@/stores'
+import { getLiveRoom, errorStatistics } from '@/api'
+import { randomArr, downLoadAudio } from '@/utils/helper'
+import { ref, computed, nextTick } from 'vue'
+import { closeWebsocket } from '@/utils/socket'
+
+export default {
+	data() {
+		return {
+			context: null,
+			camera_open: false,
+		}
+	},
+	// computed:{
+	// 	...mapState('useConfigStore', ['winHeight'])
+	// },
+	setup() {
+		const config = useConfigStore()
+		const live = useLiveStore()
+		const limit = ref(2) // 控制video渲染个数
+		const top_img = ref('')
+		const left_img = ref('')
+		const right_img = ref('')
+		const bottom_img = ref('')
+		const videoSticker = ref('')
+		const showGoodsCard = ref(false)
+		const videoType = ref('horizontal')
+		const screen_height = ref(null)
+		const full_height = ref('1672')
+		let round = 1, i = 0, voiceArr = [], timer = null; // 轮数和当前播放的第几个
+		const goods= computed(()=>live.liveInfo&&live.liveInfo.voice_media[live.current] ? live.liveInfo.voice_media[live.current].goods : null)
+		function getItem(media){
+			const { title, upload, get_goods } = media
+			if(get_goods){
+				const { id, get_img, other, location, type } = get_goods
+				// location 1右上  2右中  3右下  4左上  5左中 6左下
+				// type 1商品 2表单 3优惠券
+				return {
+					"full_path": upload.full_path,
+					"title": title||upload.name,
+					"goods": {
+						"img": get_img.full_path, 
+						"info": other,
+						"location": location||3,
+						type
+					}
+				};
+			}else{
+				return {"full_path": upload.full_path, "title": title||upload.name};
+			}
+		}
+		function interrupt(event){ // 播放中断
+			try{
+				errorStatistics({...event, media: live.liveInfo.voice_media[live.current]})
+			}catch(e){ }
+		}
+		function nextRound(){ // 播放下一轮
+		    if(live.liveInfo.sort_type==2 && voiceArr.length>2){
+				// 开启了随机播放
+				voiceArr = randomArr(voiceArr)
+		    }
+		    i = 0
+		    round++
+		}
+		function partEnd(){
+			showGoodsCard.value = false
+			if(i===(voiceArr.length-1)){ // 下一轮 播放第一个音频
+			    nextRound()
+			}else{ // 当前轮 播放下一个音频
+			    i++
+				if(limit.value < voiceArr.length){
+					limit.value++
+				}
+			}
+			live.setCurrent(voiceArr[i])
+			var vdom = live.vRef[live.current]
+			vdom.play()
+			timer = setTimeout(()=>showGoodsCard.value = true, 1000)
+		}
+		function vsEnd(){
+			if(live.wlcObj){
+				live.wlcObj.play()
+			}else if(live.innerAudioContext){
+				live.innerAudioContext.play()
+			}
+		}
+		onLoad(()=>{
+			uni.getSystemInfo({
+				success: function (res) {
+					full_height.value = (res.screenHeight + res.statusBarHeight) * 2
+				}
+			});
+			// const is_sph = uni.getStorageSync('is_sph') || false
+			getLiveRoom({type: 2}).then(res=>{
+				if(res&&res.data){
+					const { voice, 
+							answer_keyword, 
+							live_url, 
+							useself, 
+							ws_url, 
+							get_top, 
+							get_left, 
+							get_right, 
+							get_bottom, 
+							get_video, 
+							is_welcome, 
+							welcome_interval, 
+							id,
+							is_gift,
+							is_like,
+							is_social,
+							is_auto_answer, 
+							name_before,
+							name_after, 
+							video_model, 
+							platform, 
+							ws_ks_url, 
+							ws_sph_url, 
+							ws_mt_url, 
+							request_type 
+							} = res.data
+					const { sort_type, get_media } = voice
+					// if(platform===3 && !is_sph) return; // 视频号不进行重连恢复
+					let url = ws_url
+					switch(platform){
+						  case 2:
+							url = ws_ks_url
+							break;
+						  case 3:
+							url = ws_sph_url
+							break;
+						  case 4:
+							url = ws_mt_url
+							break;
+						  default:
+						    url = ws_url;
+					}
+					const vRef = []
+					top_img.value = get_top ? get_top.full_path : '';
+					left_img.value = get_left ? get_left.full_path : '';
+					right_img.value = get_right ? get_right.full_path : ''; 
+					bottom_img.value = get_bottom ? get_bottom.full_path : ''; 
+					screen_height.value = video_model===1 ? '421.875' :video_model===2 ? '1000': full_height.value;
+					if(get_video) videoSticker.value = get_video.full_path
+					const voice_media = get_media.map((media, i)=>{
+						const vdom = uni.createVideoContext(`vDom${i}`)
+						vRef.push(vdom)
+						return getItem(media)
+					})
+					// 开始下载音频资源
+					downLoadAudio(voice_media, (arr)=>{
+						live.setLiveDom(vRef)
+						voiceArr = voice_media.map((item, index)=>index)
+						const info = { 
+							id,
+							sort_type, 
+							voice_media: arr,
+							is_welcome,
+							welcome_interval,
+							is_gift,
+							is_like,
+							is_social,
+							name_before,
+							name_after,
+							reply: answer_keyword.map((item)=>{
+								return {
+									keywords: item.keywords,
+									media: item.get_midia.map(getItem)
+								}
+							})
+						}
+						live.setLiveInfo(info)
+						if(is_auto_answer)live.AutoRecover() // 三分钟自动回复
+						live.setCurrent(0)
+						// 先预加载第一段直播音频
+						nextTick(()=>{
+							if(vRef[0]) vRef[0].play()
+							timer = setTimeout(()=>showGoodsCard.value = true, 500)
+						})
+						// 打开获取评论的长连接
+						live.setRequestType(request_type)
+						live.openLonglink(live_url, useself, url, platform)
+					})
+					// uni.setStorageSync('is_sph', false)
+				}
+			})
+		})
+		onUnload(()=>{
+			if(timer) clearTimeout(timer)
+			try{
+				// 重置数据
+				live.closeAutoRecover()
+				closeWebsocket()
+				if(live.innerAudioContext) live.innerAudioContext.destroy()
+				if(live.wlcObj) live.wlcObj.destroy()
+				live.$patch({
+					current: 0,
+					vRef: [], 
+					liveInfo: null, 
+					replyVoice: '', 
+					currentMsg: '', 
+					isplay: false, 
+					innerAudioContext: null, 
+					msgList: [], 
+					wsObj: null,
+					synthesizing: false,
+					wlcPlaying: false,
+				})
+			}catch(e){
+				//TODO handle the exception
+			}
+		})
+		return { 
+			config, live, limit, interrupt, partEnd, top_img, left_img, right_img, bottom_img, goods,screen_height, showGoodsCard, videoSticker, videoType, vsEnd
+		}
+	},
+	onReady() {
+		// 隐藏顶部电池,时间等信息 
+		plus.navigator.setFullscreen(true);
+		// 注意：需要在onReady中 或 onLoad 延时
+		if(!this.context){
+			this.context = uni.createLivePusherContext("livePusher", this);
+		}
+		this.startPreview()
+		setTimeout(()=>{
+			if(!this.camera_open){
+				this.startPreview()
+			}
+		},1000)
+	},
+	onBackPress(){
+		plus.navigator.setFullscreen(false);
+	},
+	beforeUnmount(){
+		if(this.context){
+			this.stopPreview()
+			// this.stop()
+			this.context = null
+			this.camera_open = false
+		}
+	},
+	methods: {
+		stop: function() {
+			this.context.stop({
+				success: (a) => {
+					console.log("livePusher.close:" + JSON.stringify(a));
+				}
+			});
+		},
+		switchCamera: function() {
+			this.context.switchCamera({
+				success: (a) => {
+					console.log("livePusher.switchCamera:" + JSON.stringify(a));
+				}
+			});
+		},
+		startPreview: function() {
+			this.context.startPreview({
+				success: (data) => {
+					this.camera_open = true
+					if(plus.os.name==='iOS'){
+						this.switchCamera()
+					}
+				},
+				fail:(data)=>{
+					console.log("startPreview fail" + JSON.stringify(data));
+				},
+				complete: (data)=>{
+					console.log("startPreview complete" + JSON.stringify(data));
+				},
+			});
+		},
+		stopPreview: function() {
+			this.context.stopPreview({
+				success: (a) => {
+					console.log("livePusher.stopPreview:" + JSON.stringify(a));
+				}
+			});
+		}
+	}
+}
+</script>
+
+<style lang="scss" scoped>
+.liveScreen{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+	.livePusher {
+		width: 750rpx;
+		background-color: #808080;
+	}
+	.fixedScreen{
+		width: 750rpx;
+		position: fixed;
+		top: 0;
+		left: 0;
+		.block{
+			width: 400rpx;
+			height: 400rpx;
+			background-color: aqua;
+		}
+	}
+	.none{
+		position: absolute;
+		top: 0;
+		z-index: 0;
+		width: 1px;
+		height: 1px;
+		opacity: 0;
+	}
+	.top{
+		width: 750rpx;
+		height: 374rpx;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+	.bottom{
+		width: 750rpx;
+		height: 270rpx;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+	}
+	.left{
+		width: 260rpx;
+		position: absolute;
+		left: 0;
+	}
+	.right{
+		width: 260rpx;
+		position: absolute;
+		right: 0;
+	}
+	.fixedBox{
+		height: 380rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		position: absolute;
+		z-index: 10;
+		// location 1右上  2右中  3右下  4左上  5左中 6左下
+		&.location1{
+			right: 40rpx;
+			top: 50rpx;
+		}
+		&.location2{
+			right: 40rpx;
+		}
+		&.location3{
+			right: 40rpx;
+			bottom: 80rpx;
+		}
+		&.location4{
+			left: 40rpx;
+			top: 50rpx;
+		}
+		&.location5{
+			left: 40rpx;
+		}
+		&.location6{
+			left: 40rpx;
+			bottom: 80rpx;
+		}
+		.triangle{
+			width: 30rpx;
+			height: 30rpx;
+			transform: rotate(45deg);
+			position: absolute;
+			bottom: 6rpx;
+			left: 100rpx;
+			background: #ffffff;
+			border-right: 2rpx solid #ffa000;
+			border-bottom: 2rpx solid #ffa000;
+		}
+	}
+	.row{
+		display: flex;
+		flex-direction: row;
+	}
+	.goods{
+		width: 230rpx;
+		height: 340rpx;
+		background: #ffffff;
+		border: 2rpx solid #ffa000;
+		border-radius: 10rpx;
+		position: relative;
+		.pic{
+			width: 226rpx;
+			height: 228rpx;
+			background-color: #ccc;
+			border-top-left-radius: 8rpx;
+			border-top-right-radius: 8rpx;
+		}
+		.con{
+			width: 226rpx;
+			padding: 0 6rpx;
+		}
+		.name{
+			width: 226rpx;
+			color: #333;
+			font-size: 22rpx;
+			line-height: 40rpx;
+		}
+		.price{
+			flex: 1;
+			display: flex;
+			flex-direction: row;
+			align-items: flex-end;
+			.unit{
+				color: #F93434;
+				font-size: 24rpx;
+				font-weight: 700;
+			}
+			.num{
+				color: #F93434;
+				font-size: 36rpx;
+				font-weight: 700;
+			}
+		}
+		.other{
+			justify-content: space-between;
+		}
+		.typeImg{
+			width: 50rpx;
+			height: 50rpx;
+			margin: 0 2rpx;
+		}
+		.arrow{
+			width: 23rpx;
+			height: 34rpx;
+		}
+		.status{
+			width: 96rpx;
+			height: 32rpx;
+			background: rgba(0,0,0, 0.60);
+			border-radius: 5rpx;
+			position: absolute;
+			top: 5rpx;
+			left: 8rpx;
+			z-index: 1;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			.st{
+				font-size: 20rpx;
+				color: #fff;
+			}
+		}
+		.prebook{
+			justify-content: center;
+			align-items: center;
+			// height: 50rpx;
+			.rbt{
+				color: #F93434;
+				font-size: 24rpx;
+				font-weight: 700;
+			}
+		}
+	}
+	.videoSticker{
+		width: 750rpx;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 9;
+		background: transparent;
+		&.horizontal{ 
+			height: 421.875rpx; // 16:9
+		}
+		&.vertical{
+			height: 1000rpx; // 3:4
+		}
+		&.full{
+			height: 1672rpx;
+		}
+	}
+}
+</style>

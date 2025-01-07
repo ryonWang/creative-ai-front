@@ -1,0 +1,142 @@
+page{
+	font-family: 'Microsoft YaHei, Microsoft YaHei-Regular';
+	color: #333333;
+}
+* {
+	box-sizing: border-box;
+}
+.mc{
+	color: #1e64fe;
+}
+.r{
+	color: #FE2222;
+}
+.vcenter{
+	display: flex;
+	align-items: center;
+}
+/* 背景 */
+.container{
+	width: 100%;
+	height: 100vh !important;
+	background: #f9f9f9;
+}
+
+/* flex布局 */
+.flex{
+  display: flex;
+}
+
+/* 竖向排列 */
+.flex-col{
+  display: flex;
+  flex-direction: column;
+}
+.flex-cc{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.flex-rcc{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.fcc-sb{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* 换行 */
+.flex-warp{
+  flex-wrap: wrap;
+}
+
+/* 避免子元素被挤压变形 */
+.flex-shrink{
+  flex-shrink: 0;
+}
+
+/* 操作子元素开头 flex-item */
+
+/* 列式布局垂直居中 */
+.flex-item-col-center {
+	display: flex;
+  align-items: center;
+}
+
+/* 列式布局顶部对齐 */
+.flex-item-col-top {
+  align-items: flex-start;
+}
+
+/* 列式布局底部对齐 */
+.flex-item-col-bottom {
+  align-items: flex-end;
+}
+
+/* 行式布局左边对齐 */
+.flex-item-row-left {
+  justify-content: flex-start;
+}
+
+/* 行式布局水平居中 */
+.flex-item-row-center {
+  justify-content: center;
+}
+
+/* 行式布局右边对齐 */
+.flex-item-row-right {
+  justify-content: flex-end;
+}
+
+/* 行式布局水平两端对齐，项目之间的间隔都相等 */
+.flex-item-row-between {
+  justify-content: space-between;
+}
+
+/* 行式布局，水平每个项目两侧的间隔相等，所以项目之间的间隔比项目与父元素两边的间隔大一倍 */
+.flex-item-row-around {
+  justify-content: space-around;
+}
+
+/*
+  ↓ 以下写在子元素class中，表示子元素占据空间大小
+*/
+.flex-item-1 {
+  flex: 1;
+}
+
+.flex-item-2 {
+  flex: 2;
+}
+
+.flex-item-3 {
+  flex: 3;
+}
+
+.flex-item-4 {
+  flex: 4;
+}
+
+.flex-item-5 {
+  flex: 5;
+}
+
+.flex-item-6 {
+  flex: 6;
+}
+
+.flex-item-7 {
+  flex: 7;
+}
+
+.flex-item-8 {
+  flex: 8;
+}
+
+.flex-item-9 {
+  flex: 9;
+}
