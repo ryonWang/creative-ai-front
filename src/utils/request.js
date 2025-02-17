@@ -7,8 +7,8 @@ import { getToken } from './auth'
 axios.defaults.retry = 2
 axios.defaults.retryDelay = 1000
 
-// 统一使用后端API地址
-const baseURL = import.meta.env.PROD ? 'http://your-production-domain' : '/api';
+// 根据环境使用不同的baseURL
+const baseURL = import.meta.env.MODE === 'development' ? import.meta.env.VITE_BASE_URL : import.meta.env.VITE_BASE_URL;
 
 // 是否显示重新登录
 export let isRelogin = { show: false };

@@ -189,6 +189,13 @@ const handleBack = () => {
 	uni.navigateBack()
 }
 
+// 添加3D查看功能
+const handle3DView = () => {
+	uni.navigateTo({
+		url: `/pagesub/fit/3d-view?image=${encodeURIComponent(resultImage.value)}`
+	})
+}
+
 // 组件挂载时设置图片URL
 onMounted(() => {
 	if (query.image_url) {

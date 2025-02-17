@@ -1,7 +1,6 @@
 {
 	"easycom": {
 		"autoscan": true,
-		// 注意一定要放在custom里，否则无效，https://ask.dcloud.net.cn/question/131175
 		"custom": {  
 			"^u-(.*)": "uview-plus/components/u-$1/u-$1.vue" 
 		}
@@ -13,12 +12,11 @@
 			"path": "tabber/index/index"
 		}]
 	},
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		
 		{
 			"path": "tabber/index/index",
 			"style": {
-				"transparentTitle": "always" //状态栏透明
 			}
 		},
 		{
@@ -37,7 +35,6 @@
 		{
 			"path": "tabber/me/index",
 			"style": {
-				"transparentTitle": "always" ,//状态栏透明
 				"navigationBarTitleText": "",
 				"navigationBarTextStyle": "black"
 			}
@@ -48,14 +45,14 @@
 			"root": "pagesub",
 			"pages": [
 				{
-				    "path": "/live/record",
+				    "path": "live/record",
 				    "style": {
 				    	"navigationBarTitleText": "直播记录",
 						"enablePullDownRefresh": true
 				    }
 				},
 				{
-					"path": "/live/detail",
+					"path": "live/detail",
 					"style": {
 						"navigationBarTitleText": "直播记录详情"
 					}
@@ -63,9 +60,7 @@
 				{
                     "path" : "live/create",
                     "style" :  {
-						"transparentTitle": "auto",
 						"navigationBarBackgroundColor": "#519af8",
-						// "navigationStyle": "custom",
 						"navigationBarTitleText": "创建新直播",
 						"navigationBarTextStyle": "white"
 					}
@@ -73,26 +68,25 @@
 				{
 				    "path" : "live/create2",
 				    "style" :  {
-						"transparentTitle": "auto",
 						"navigationBarBackgroundColor": "#519af8",
 						"navigationBarTitleText": "创建贴图直播",
 						"navigationBarTextStyle": "white"
 					}
 				},
 				{
-					"path": "/live/sticker",
+					"path": "live/sticker",
 					"style": {
 						"navigationStyle": "custom"
 					}
 				},
 				{
-					"path": "/live/uploadimg",
+					"path": "live/uploadimg",
 					"style": {
 						"navigationBarTitleText": "添加贴图"
 					}
 				},
 				{
-					"path": "/live/uploadvideo",
+					"path": "live/uploadvideo",
 					"style": {
 						"navigationBarTitleText": "添加直播视频"
 					}
@@ -142,8 +136,7 @@
 				{
 					"path": "login/index",
 					"style": {
-						"navigationBarTitleText": "",
-						"transparentTitle": "auto" //状态栏透明
+						"navigationBarTitleText": ""
 					}
 				},
 				{
@@ -172,51 +165,50 @@
 					}
 				},
 				{
-					"path": "/voices/upload",
+					"path": "voices/upload",
 					"style": {
 						"navigationBarTitleText": "上传文件"
 					}
 				},
 				{
-					"path": "/voices/taskStore",
+					"path": "voices/taskStore",
 					"style": {
 						"navigationBarTitleText": "话术库"
 					}
 				},
 				{
-					"path" : "/voices/ai-dub",
+					"path" : "voices/ai-dub",
 					"style" :  {
 						"navigationBarTitleText": "AI配音"
 					}
 				},
 				{
-					"path" : "/voices/select",
+					"path" : "voices/select",
 					"style" :  {
 						"navigationBarTitleText": "声音选择"
 					}
 				},
 				{
-					"path" : "/voices/menu",
+					"path" : "voices/menu",
 					"style" :  {
 						"navigationBarTitleText": "语音库"
 					}
 				},
 				{
-					"path": "/ai/index",
+					"path": "ai/index",
 					"style": {
 						"navigationBarTitleText": "AI创作"
 					}
 				},
 				{
-					"path": "/common/voice",
+					"path": "common/voice",
 					"style": {
 						"navigationBarTitleText": "公共语音库"
 					}
 				},
 				{
-					"path": "/store/tasks",
+					"path": "store/tasks",
 					"style": {
-						"transparentTitle": "always"//状态栏透明
 					}
 				},
 				{
@@ -245,33 +237,54 @@
 					}
 				},
 				{
-					"path": "/fit/guide",
+					"path": "fit/guide",
 					"style": {
 						"navigationBarTitleText": "拍摄说明"
 					}
 				},
 				{
-					"path": "/fit/index",
+					"path": "fit/index",
 					"style": {
 						"navigationBarTitleText": "选择模特"
 					}
 				},
 				{
-					"path": "/fit/detail",
+					"path": "fit/detail",
 					"style": {
 						"navigationBarTitleText": "模特详情"
 					}
 				},
 				{
-					"path": "/fit/clothes",
+					"path": "fit/clothes",
 					"style": {
 						"navigationBarTitleText": "选择服装"
 					}
 				},
 				{
-					"path": "/fit/result",
+					"path": "fit/result",
 					"style": {
 						"navigationBarTitleText": "合成结果"
+					}
+				},
+				{
+					"path": "my/earnings",
+					"style": {
+						"navigationBarTitleText": "收益记录",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "my/orders",
+					"style": {
+						"navigationBarTitleText": "订单列表",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "my/team",
+					"style": {
+						"navigationBarTitleText": "团队管理",
+						"enablePullDownRefresh": true
 					}
 				}
             ]
@@ -301,7 +314,7 @@
 	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "创意宝",
 		"navigationBarBackgroundColor": "#ffffff",
 		"backgroundColor": "#f8f8f8"
 	}

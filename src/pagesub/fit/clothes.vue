@@ -278,9 +278,7 @@ const handleGenerate = async () => {
 			// 实际上传逻辑
 			const uploadPromise = new Promise((resolve, reject) => {
 				const uploadTask = uni.uploadFile({
-					url: import.meta.env.PROD 
-						? 'http://your-production-domain/module/synthesis/outfit/uploadFitImg'
-						: '/api/module/synthesis/outfit/uploadFitImg',
+					url: '/module/synthesis/outfit/uploadFitImg',
 					files: uploadTasks.map(task => ({
 						name: 'file',
 						uri: task.filePath
@@ -336,7 +334,7 @@ const startPolling = () => {
 		try {
 			
 			const res = await uni.request({
-				url: 'http://localhost:7100/module/synthesis/outfit/status/'+taskId.value,
+				url: '/module/synthesis/outfit/status/'+taskId.value,
 				method: 'GET',
 				header: {
 					'Authorization': 'Bearer ' + userStore.token

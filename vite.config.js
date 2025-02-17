@@ -1,38 +1,42 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 import AutoImport from 'unplugin-auto-import/vite'
 
-export default defineConfig({
-  plugins: [
-    uni(),
-	AutoImport({
-	    // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
-		imports: ['vue'],
-	}),
-  ],
-  transpileDependencies: ['uview-plus'],
-  server: {
-    port: 5173,
-    proxy: {
-      '/module': {
-        target: 'http://localhost:7100',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/captcha': {
-        target: 'http://localhost:7100',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/v1': {
-        target: 'http://localhost:7100',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/api': {
-        target: 'http://localhost:7100',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd())
+  const proxyTarget = mode === 'development' ? 'http://localhost:7100' : env.VITE_BASE_URL
+
+  return {
+    plugins: [
+      uni(),
+      AutoImport({
+        imports: ['vue'],
+      }),
+    ],
+    transpileDependencies: ['uview-plus'],
+    server: {
+      port: 5173,
+      proxy: {
+        '/module': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/captcha': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/v1': {
+          target: proxyTarget,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/api': {
+          target: proxyTarget,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
       }
     }
   }

@@ -2,10 +2,7 @@
 <view class="page">
 	<image src="/static/images/template/bg6.jpg" class="bg"></image>
 	<view class="content">
-		<!-- 顶部header -->
-		<u-navbar bgColor="transparent" title="" titleStyle="font-size:36rpx;font-weight:bold;color:#333" :fixed="false">
-			<template #left><text style="font-size: 36rpx;font-weight: bold;color: #fff">创意宝</text></template>
-		</u-navbar>
+		
 		<!-- 轮播图插槽 -->
 		<view class="swiperBox">
 			<swiper class="swiper" 
@@ -51,7 +48,7 @@
 		</view>
 		<!-- 菜单按钮区 -->
 		<view class="menuArea">
-			<view class="menuFull m0 flex special-menu" :class="{'shine-effect': true}" @click="goTo('/pagesub/fit/index')" style="width: 100%; position: relative;">
+			<view class="menuFull m0 flex special-menu" :class="{'shine-effect': true}" @click="handleMenuClick('/pagesub/fit/index')" style="width: 100%; position: relative;">
 				<view class="highlight-border"></view>
 				<image src="/static/images/template/sticker6_0.png" class="stickerFull animate-float"></image>
 				<view class="content-wrapper">
@@ -64,7 +61,7 @@
 				</view>
 				<view class="corner-decoration"></view>
 			</view>
-			<view class="menu m1 flex" @click="goTo('/pagesub/voices/index')">
+			<view class="menu m1 flex" @click="handleMenuClick('/pagesub/voices/index')">
 				<image src="/static/images/template/sticker6_1.png" class="sticker"></image>
 				<view>
 					<view class="h3">AI语音库</view>
@@ -73,7 +70,7 @@
 				</view>
 				
 			</view>
-			<view class="menu m2 flex" @click="goTo('/pagesub/reply/list')">
+			<view class="menu m2 flex" @click="handleMenuClick('/pagesub/reply/list')">
 				<image src="/static/images/template/sticker6_2.png" class="sticker"></image>
 				<view>
 					<view class="h3">智能回复库</view>
@@ -81,7 +78,7 @@
 					<view class="btn">立即体验</view>
 				</view>
 			</view>
-			<view class="menu m3 flex" @click="goTo('/pagesub/store/tasks')">
+			<view class="menu m3 flex" @click="handleMenuClick('/pagesub/store/tasks')">
 				<image src="/static/images/template/sticker6_3.png" class="sticker"></image>
 				<view>
 					<view class="h3">话术库</view>
@@ -89,7 +86,7 @@
 					<view class="btn">立即体验</view>
 				</view>
 			</view>
-			<view class="menu m4 flex" @click="goTo('/pagesub/ai/index')">
+			<view class="menu m4 flex" @click="handleMenuClick('/pagesub/ai/index')">
 				<image src="/static/images/template/sticker6_4.png" class="sticker"></image>
 				<view>
 					<view class="h3">AI创作</view>
@@ -97,7 +94,7 @@
 					<view class="btn">立即体验</view>
 				</view>
 			</view>
-			<view class="menu m5 flex" @click="goTo('/pagesub/common/voice')">
+			<view class="menu m5 flex" @click="handleMenuClick('/pagesub/common/voice')">
 				<image src="/static/images/template/sticker6_5.png" class="sticker"></image>
 				<view>
 					<view class="h3">公共语音库</view>
@@ -105,7 +102,7 @@
 					<view class="btn">立即体验</view>
 				</view>
 			</view>
-			<view class="menu m6 flex" @click="goTo('/pagesub/goods/index')">
+			<view class="menu m6 flex" @click="handleMenuClick('/pagesub/goods/index')">
 				<image src="/static/images/template/sticker6_6.png" class="sticker"></image>
 				<view>
 					<view class="h3">商品库</view>
@@ -120,8 +117,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { goTo } from '@/utils/helper.js'
+import { getNotice, getBanner } from '@/api'
+import { useWebsetStore } from '@/stores'
+const imageUrl = useWebsetStore().staticWebsite
 
 const props = defineProps({
     statusBar: {
@@ -134,29 +134,56 @@ const props = defineProps({
 	}
 });
 
-// 轮播图数据
-const bannerList = ref([
-	{
-		id: 1,
-		image: '/static/images/banner/banner1.png',
-		url: '/pagesub/goods/index'
-	},
-	{
-		id: 2,
-		image: '/static/images/banner/banner2.png',
-		url: '/pagesub/voices/index'
-	},
-	{
-		id: 3,
-		image: '/static/images/banner/banner3.png',
-		url: '/pagesub/ai/index'
-	},
-	{
-		id: 4,
-		image: '/static/images/banner/banner4.png',
-		url: '/pagesub/store/tasks'
-	}
-]);
+// Update bannerList to be empty initially
+const bannerList = ref([]);
+
+// Add function to fetch banner data
+const fetchBannerData = async () => {
+    try {
+        const oem_id = import.meta.env.VITE_OEM_ID;
+        const res = await getBanner({ oem_id });
+		console.log(res.data)
+        if (res && res.data && res.data.length > 0) {
+            bannerList.value = res.data.map(item => ({
+                id: item.id,
+                image: imageUrl + item.bannerImg,
+                url: item.url || '',
+                title: item.title || '精彩活动'
+            }));
+        }
+    } catch (error) {
+        console.error('获取轮播图失败:', error);
+    }
+};
+
+// 通知数据
+const notifications = ref([]);
+
+// 获取通知数据
+const fetchNotifications = async () => {
+    try {
+        const res = await getNotice();
+        if (res.code === 200 && res.data) {
+            console.log(res.data)
+            notifications.value = res.data.map(item => ({
+                id: item.id,
+                type: item.noticeType === 'NOTIFY' ? '通知' : 
+                      item.noticeType === 'ACTIVITY' ? '活动' :
+                      item.noticeType === 'HELP' ? '帮助' : '公告',
+                content: item.content || item.title,
+                url: item.url || ''
+            }));
+        }
+    } catch (error) {
+        console.error('获取通知失败:', error);
+    }
+};
+
+// Call fetchBannerData when component mounts
+onMounted(() => {
+    fetchBannerData();
+    fetchNotifications();
+});
 
 // 轮播图点击处理
 const handleBannerClick = (item) => {
@@ -164,22 +191,6 @@ const handleBannerClick = (item) => {
 		goTo(item.url);
 	}
 };
-
-// 通知数据
-const notifications = ref([
-	{
-		id: 1,
-		type: '活动',
-		content: '新人专享优惠，立即体验AI智能搭配',
-		url: '/pagesub/fit/index'
-	},
-	{
-		id: 2,
-		type: '公告',
-		content: '系统升级公告：新增多款时尚单品',
-		url: ''
-	}
-]);
 
 // 通知点击处理
 const handleNoticeClick = (notice) => {
@@ -195,6 +206,30 @@ const viewAllNotices = () => {
 		title: '功能开发中',
 		icon: 'none'
 	});
+};
+
+// 菜单点击处理
+const handleMenuClick = (path) => {
+    // 这里可以根据路径判断是否开发完成
+    const developedPaths = [
+        // 将已开发完成的路径添加到这个数组中
+		'/pagesub/fit/index',
+		// '/pagesub/voices/index',
+		// '/pagesub/reply/list',
+		// '/pagesub/store/tasks',
+		// '/pagesub/ai/index',
+		// '/pagesub/common/voice',
+		// '/pagesub/goods/index',
+    ];
+    
+    if (developedPaths.includes(path)) {
+        goTo(path);
+    } else {
+        uni.showToast({
+            title: '功能开发中',
+            icon: 'none'
+        });
+    }
 };
 </script>
 

@@ -66,6 +66,6 @@ onHide(()=>{
 </script>
 
 <style lang="scss">
-/*每个页面公共css */
+/* uview-plus 内置样式 */
 @import "uview-plus/index.scss";
 </style>

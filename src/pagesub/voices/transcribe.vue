@@ -23,10 +23,10 @@
 		<view class="recordBox flex-cc">
 			<view class="aBox flex-rcc">
 				<view class="animate-wave" v-if="isRecord">
-					<view class="w1"></view>
-					<view class="w2"></view>
-					<view class="w3"></view>
-					<view class="w4"></view>
+					<view class="wave-item"></view>
+					<view class="wave-item"></view>
+					<view class="wave-item"></view>
+					<view class="wave-item"></view>
 				</view>
 				<image src="/static/images/voices/record.png" @click="handleRecord"></image>
 			</view>
@@ -352,11 +352,13 @@
 			  font-size: 28rpx;
 			  color: #2281fe;
 		  }
-		  .animate-wave * {
+		  .animate-wave {
+		    .wave-item {
 		      background: #2281FE;
 		      position: absolute;
 		      border-radius: 50%;
-			  animation: opac 4s infinite;
+		      animation: opac 4s infinite;
+		    }
 		  }
 		  .animate-wave .w2 {
 		      animation-delay: 1s;

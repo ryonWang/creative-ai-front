@@ -22,6 +22,15 @@ export function register(data) {
 		data
 	})
 }
+
+//首页通知
+export function getNotice(){
+	return request({
+		url: '/module/business/noticeclient/getNoticeAll',
+		method: 'get'
+	})
+}
+
 // 七牛云token
 export function qiniuToken(params){
 	return request({
@@ -301,7 +310,7 @@ export function errorStatistics(data){
 // 轮播图
 export function getBanner(params){
 	return request({
-		url: '/v1/oem/config',
+		url: '/module/app/banner/list',
 		method: 'get',
 		params
 	})
@@ -509,20 +518,12 @@ export function checkSphStatus(params) {
 	})
 }
 
-// 获取公告
-export function getNotice(){
-	return request({
-		url: 'module/business/noticeclient/getLastNotice',
-		method: 'get'
-		})
-}
-
 // 上传图片
 export function uploadImg({ filePath, formData = {} }) {
 	return new Promise((resolve, reject) => {
 		const userStore = useUserStore()
 		uni.uploadFile({
-			url: 'http://localhost:7100/module/synthesis/outfit/uploadFitImg',
+			url: import.meta.env.VITE_BASE_URL + '/module/synthesis/outfit/uploadFitImg',
 			filePath,
 			name: 'file',
 			header: {
